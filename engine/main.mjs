@@ -12,8 +12,10 @@ import { watchParent } from "./parent.mjs"
 import { dataDir, engineKey, enginePort } from "./paths.mjs"
 import { createServer, VERSION } from "./server.mjs"
 import { Store } from "./store.mjs"
+import { remoteSettings } from "./remote.mjs"
 
 const env = process.env
+const remote = remoteSettings(env)
 const dir = dataDir(env)
 mkdirSync(dir, { recursive: true })
 const logFile = path.join(dir, "engine.log")
@@ -124,6 +126,8 @@ const server = createServer({
   port,
   site,
   log,
+  publicURL: remote.publicURL,
+  desktopURL: remote.desktopURL,
   onActivity: () => { lastUse = Date.now() },
   readUsage,
   onShutdown: () => shutdown("asked to stop"),
@@ -170,9 +174,9 @@ server.on("error", async (err) => {
   process.exit(1)
 })
 
-server.listen(port, "127.0.0.1", () => {
+server.listen(port, remote.host, () => {
   log(
-    `muse-web engine ${VERSION} listening on http://127.0.0.1:${port} · ${store.count()} accounts · ` +
+    `muse-web engine ${VERSION} listening on http://${remote.host}:${port} · ${store.count()} accounts · ` +
       `browser ${executable ? `${path.basename(executable)} (${mode})` : "not found"} · proxy ${masked(proxy)} · data ${dir}`,
   )
   if (prewarm && executable) warm(store.handles())

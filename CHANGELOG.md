@@ -1,5 +1,14 @@
 # 更新记录
 
+## 0.6.0 · Server desktop fork
+
+- 新增 Docker Compose 桌面引擎：Chromium、Xvfb、Fluxbox、noVNC 与带认证的 HTTP/WebSocket 代理。
+- 登录状态页支持公开地址与远程桌面入口，保持现有本机登录流程。
+- 外部部署支持显式引擎密钥和监听地址。
+- 新增远程登录测试与真实桌面容器 CI；有界面登录使用本地仿 Muse 页面验证。
+- 修正 Windows 上执行跨平台测试时的数据目录路径构建。
+- 补充私有桌面访问、HTTPS 反代、现有 Magpie 集成、AstrBot 接入与回滚说明。
+
 ## 0.5.8 · 2026-11-05
 
 - 修复：muse.ai 先输出一句进度、停止按钮消失后才写工具调用时，引擎会把回复提前判定为结束，客户端只收到进度文字（[#10](https://github.com/JohnWangggg/magpie-muse-web/pull/10)）。工具请求现在在文字静止后等待 4 秒；停止按钮消失时会重新开始计时。

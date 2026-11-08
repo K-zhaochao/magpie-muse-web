@@ -7,6 +7,7 @@ import { buildPrompt, PromptError } from "./prompt.mjs"
 import { functions, parseToolCalls, stripLabels, TOOLS_REMINDER, toolsPrompt } from "./tools.mjs"
 
 import { VERSION } from "./version.mjs"
+import { loginStatusURL, webURL } from "./remote.mjs"
 
 export { VERSION }
 const MODEL = "muse-spark"
@@ -54,10 +55,10 @@ async function body(req, limit = 8 << 20) {
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c])
 
-function loginPage(state) {
+function loginPage(state, desktopURL = "") {
   const done = state?.status === "done"
   const failed = state?.status === "failed" || !state
-  const title = done ? "登录完成" : failed ? "登录没有完成" : "等待你在弹出的浏览器窗口里登录 muse.ai"
+  const title = done ? "登录完成" : failed ? "登录没有完成" : desktopURL ? "请打开远程桌面登录 muse.ai" : "等待你在弹出的浏览器窗口里登录 muse.ai"
   const note = done
     ? "可以关掉这个页面，回到 Magpie。"
     : failed
@@ -72,11 +73,14 @@ body{margin:0;min-height:100vh;display:grid;place-items:center;background:Canvas
 main{max-width:30rem;padding:2rem}
 h1{font-size:1.25rem;margin:0 0 .5rem;font-weight:600}
 p{margin:0;opacity:.75}
+a{display:inline-block;margin-top:1rem;padding:.6rem 1rem;background:#6554c0;color:white;border-radius:.5rem;text-decoration:none}
 .dot{display:inline-block;width:.6rem;height:.6rem;border-radius:50%;margin-right:.5rem;vertical-align:middle;background:${done ? "#2f9e44" : failed ? "#e03131" : "#f59f00"}}
-</style></head><body><main><h1><span class="dot"></span>${title}</h1><p>${note}</p></main></body></html>`
+</style></head><body><main><h1><span class="dot"></span>${title}</h1><p>${note}</p>${!done && !failed && desktopURL ? `<a href="${esc(desktopURL)}" target="_blank" rel="noopener noreferrer">打开远程登录桌面</a><p>在远程桌面的浏览器里完成登录，保留本页等待测试结果。桌面密码与 Muse 账号密码不同。</p>` : ""}</main></body></html>`
 }
 
-export function createServer({ muse, logins, store, key, port = 18611, log = () => {}, onActivity = () => {}, onShutdown = () => {}, readUsage = (a, maxAgeMs) => muse.readUsage(a, { maxAgeMs }).catch(() => null), site = muse?.site }) {
+export function createServer({ muse, logins, store, key, port = 18611, publicURL = "", desktopURL = "", log = () => {}, onActivity = () => {}, onShutdown = () => {}, readUsage = (a, maxAgeMs) => muse.readUsage(a, { maxAgeMs }).catch(() => null), site = muse?.site }) {
+  publicURL = webURL(publicURL, "publicURL").replace(/\/+$/, "")
+  desktopURL = webURL(desktopURL, "desktopURL", { query: true })
   const busy = new Set()
 
   function authorize(req) {
@@ -260,7 +264,7 @@ export function createServer({ muse, logins, store, key, port = 18611, log = () 
     "POST /v1/login": async (req, res) => {
       authorize(req)
       const id = await logins.start()
-      json(res, 200, { id, url: `http://127.0.0.1:${port}/login/${id}` })
+      json(res, 200, { id, url: loginStatusURL(id, port, publicURL) })
     },
   }
 
@@ -279,8 +283,8 @@ export function createServer({ muse, logins, store, key, port = 18611, log = () 
         if (!state) throw new HttpError(404, "no such login")
         json(res, 200, state)
       } else if (req.method === "GET" && (m = url.pathname.match(/^\/login\/([\w-]+)$/))) {
-        const html = loginPage(logins.status(m[1]))
-        res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" })
+        const html = loginPage(logins.status(m[1]), desktopURL)
+        res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer", "x-content-type-options": "nosniff" })
         res.end(html)
       } else throw new HttpError(404, "not found")
     } catch (err) {

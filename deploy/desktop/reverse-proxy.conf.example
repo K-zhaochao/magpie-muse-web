@@ -1,0 +1,12 @@
+# Dedicated HTTPS site, e.g. muse-login.example.com. Add these locations inside your
+# existing TLS server block; your panel supplies the certificate/server_name/listen directives.
+location / {
+    proxy_pass http://127.0.0.1:6080;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_buffering off;
+    proxy_read_timeout 900s;
+}

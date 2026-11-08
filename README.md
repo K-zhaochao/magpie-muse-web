@@ -2,6 +2,22 @@
 
 <h1 align="center">magpie-muse-web</h1>
 
+## 服务器图形桌面版（本 fork，0.6.0）
+
+无桌面的 Linux / Docker 服务器可部署附带的 **Chromium + 虚拟桌面 + noVNC**，
+在 Edge 操作服务器里的 Muse 登录窗口；Magpie 插件、模型 ID 和调度保持不变。
+
+**[服务器安装、网页登录、HTTPS 反代与 AstrBot 接入教程](deploy/desktop/README.md)**
+
+```sh
+node deploy/desktop/init.mjs
+docker compose --env-file deploy/desktop/.env -f deploy/desktop/compose.yaml up -d --build
+```
+
+默认仅监听服务器 `127.0.0.1:6080`，通过 SSH 隧道或独立 HTTPS 子域名访问。
+还需在现有 Magpie 设置外部引擎地址与密钥；只在插件页更新源码不会自动安装宿主机桌面。
+本 fork 插件地址为 `github:K-zhaochao/magpie-muse-web`。以下保留上游本机部署说明。
+
 <p align="center">
   把 <a href="https://muse.ai">muse.ai</a> 的网页账号接进 <a href="https://github.com/yetone/magpie">Magpie</a>：
   每个账号在浏览器窗口里登录一次，就能在 Codex、OpenCode 等 Agent 里用 Muse Spark，

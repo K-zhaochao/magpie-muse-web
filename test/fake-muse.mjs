@@ -79,7 +79,7 @@ function cookies(req) {
   )
 }
 
-export async function startFakeMuse({ loginDelayMs = 600 } = {}) {
+export async function startFakeMuse({ loginDelayMs = 600, port = 0 } = {}) {
   const state = { prompts: [], sessionCalls: 0, wakeCalls: 0, pageLoads: 0, usage: { weekly: 12, extra: 0, reset: "10月15日" }, usageReads: 0 }
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, "http://x")
@@ -128,7 +128,7 @@ export async function startFakeMuse({ loginDelayMs = 600 } = {}) {
     }
     res.writeHead(404).end()
   })
-  await new Promise((r) => server.listen(0, "127.0.0.1", r))
+  await new Promise((r) => server.listen(port, "127.0.0.1", r))
   const site = `http://127.0.0.1:${server.address().port}`
   return { site, state, close: () => new Promise((r) => { server.closeAllConnections?.(); server.close(r) }) }
 }

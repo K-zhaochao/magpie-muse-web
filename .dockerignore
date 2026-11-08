@@ -1,0 +1,12 @@
+.git
+node_modules
+*.log
+.env
+.env.*
+**/.env
+**/.env.*
+**/accounts.json
+**/engine.key
+**/browser
+**/login
+verification

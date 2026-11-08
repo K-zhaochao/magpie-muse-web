@@ -1,0 +1,48 @@
+name: Desktop and plugin tests
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  desktop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: bash -n deploy/desktop/entrypoint.sh
+      - run: docker build -f deploy/desktop/Dockerfile -t muse-desktop:test .
+      - name: Original plugin and new remote unit tests with real Chromium
+        run: >-
+          docker run --rm --entrypoint node -v "$PWD:/tests:ro" -w /tests
+          muse-desktop:test --test contract.test.mjs 'test/*.test.mjs'
+      - name: Desktop integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          export MUSE_WEB_ENGINE_KEY="$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")"
+          export DESKTOP_PASSWORD="$(node -e "console.log(require('crypto').randomBytes(24).toString('hex'))")"
+          export DESKTOP_USER=muse
+          echo "::add-mask::$MUSE_WEB_ENGINE_KEY"
+          echo "::add-mask::$DESKTOP_PASSWORD"
+          docker run -d --name muse-desktop-test \
+            -e MUSE_WEB_ENGINE_KEY -e DESKTOP_PASSWORD -e DESKTOP_USER \
+            -e MUSE_WEB_PUBLIC_URL=http://127.0.0.1:6080 \
+            -e MUSE_WEB_SITE=http://127.0.0.1:18777 -e MUSE_WEB_PROXY=direct \
+            -e MUSE_WEB_PREWARM=0 -e MUSE_WEB_VERIFY_LOGIN=1 \
+            --shm-size=1g -p 127.0.0.1:6080:8080 \
+            -v "$PWD/test:/app/test:ro" muse-desktop:test
+          docker exec -d muse-desktop-test node /app/test/desktop-fake-site.mjs
+          for i in {1..90}; do
+            if curl -fsS http://127.0.0.1:6080/v1/health >/dev/null; then break; fi
+            sleep 1
+          done
+          node test/desktop-smoke.mjs
+      - name: Container logs and cleanup
+        if: always()
+        run: |
+          docker logs muse-desktop-test || true
+          docker rm -fv muse-desktop-test || true
