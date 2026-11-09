@@ -1,6 +1,6 @@
 {
   "name": "magpie-muse-web",
-  "version": "0.5.8",
+  "version": "0.6.0",
   "description": "Magpie provider plugin for muse.ai: sign in to each account in a browser window, use Muse Spark with tool calls in Codex, OpenCode and other agents, and see each account's weekly usage",
   "type": "module",
   "main": "./index.mjs",
@@ -26,13 +26,13 @@
   ],
   "author": "JohnWang (https://github.com/JohnWangggg)",
   "license": "MIT",
-  "homepage": "https://github.com/JohnWangggg/magpie-muse-web#readme",
+  "homepage": "https://github.com/K-zhaochao/magpie-muse-web#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JohnWangggg/magpie-muse-web.git"
+    "url": "git+https://github.com/K-zhaochao/magpie-muse-web.git"
   },
   "bugs": {
-    "url": "https://github.com/JohnWangggg/magpie-muse-web/issues"
+    "url": "https://github.com/K-zhaochao/magpie-muse-web/issues"
   },
   "engines": {
     "node": ">=20"

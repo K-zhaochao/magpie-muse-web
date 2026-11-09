@@ -153,7 +153,7 @@ export const MuseWebPlugin = async (_input, options) => {
     const { id, url } = await res.json()
     return {
       url,
-      instructions: "在弹出的浏览器窗口里登录 muse.ai。登录后窗口会自动关闭，引擎再发一条测试消息，账号能回答才算登录成功。",
+      instructions: "服务器部署请在登录页面点击“打开远程登录桌面”；本机部署请在弹出的浏览器窗口里登录 muse.ai。登录后窗口会自动关闭，引擎再发一条测试消息，账号能回答才算登录成功。",
       method: "auto",
       async callback() {
         const end = Date.now() + LOGIN_LIMIT_MS
