@@ -7,7 +7,9 @@ import { VERSION } from "./engine/version.mjs"
 
 const PROVIDER = "muse-web"
 const MODEL = "muse-spark"
-const CONTROL_TIMEOUT_MS = 10_000
+// A low-memory server can spend over 25 s starting a visible Chromium window.
+// Keep the request alive past launchBrowser's 30 s startup budget, not just 10 s.
+const CONTROL_TIMEOUT_MS = 60_000
 const ENGINE_START_MS = 20_000
 // the engine's 15 minutes to sign in, then the test message it sends to the new account
 const LOGIN_LIMIT_MS = 18 * 60_000
