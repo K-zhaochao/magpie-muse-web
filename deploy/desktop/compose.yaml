@@ -3,7 +3,7 @@ services:
     build:
       context: ../..
       dockerfile: deploy/desktop/Dockerfile
-    image: magpie-muse-web-desktop:0.6.0
+    image: magpie-muse-web-desktop:0.6.1
     restart: unless-stopped
     env_file: .env
     environment:

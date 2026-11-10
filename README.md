@@ -2,7 +2,7 @@
 
 <h1 align="center">magpie-muse-web</h1>
 
-## 服务器图形桌面版（本 fork，0.6.0）
+## 服务器图形桌面版（本 fork，0.6.1）
 
 无桌面的 Linux / Docker 服务器可部署附带的 **Chromium + 虚拟桌面 + noVNC**，
 在 Edge 操作服务器里的 Muse 登录窗口；Magpie 插件、模型 ID 和调度保持不变。
@@ -17,6 +17,9 @@ docker compose --env-file deploy/desktop/.env -f deploy/desktop/compose.yaml up 
 默认仅监听服务器 `127.0.0.1:6080`，通过 SSH 隧道或独立 HTTPS 子域名访问。
 还需在现有 Magpie 设置外部引擎地址与密钥；只在插件页更新源码不会自动安装宿主机桌面。
 本 fork 插件地址为 `github:K-zhaochao/magpie-muse-web`。以下保留上游本机部署说明。
+
+0.6.1 将引擎控制请求的等待时间延长到 60 秒，避免低内存服务器启动浏览器超过 10 秒时，
+出现“引擎没有启动”的误报；已验证并保存的账号可通过“引擎账号 ID”接回 Magpie，无需重复邮箱登录。
 
 <p align="center">
   把 <a href="https://muse.ai">muse.ai</a> 的网页账号接进 <a href="https://github.com/yetone/magpie">Magpie</a>：
